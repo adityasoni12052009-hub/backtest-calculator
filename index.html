@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Aditya Backtester Community</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f7f6;color:#17201d;min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}
+.topbar{height:66px;background:#9290f5;display:flex;align-items:center;padding:0 12px;gap:12px;color:#fff;position:sticky;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.logo{font-size:24px;font-weight:bold}.appname{background:rgba(255,255,255,.12);border-radius:30px;padding:12px 18px;font-size:15px;flex:1;font-weight:bold;white-space:nowrap;overflow:hidden}
+.refresh{font-size:27px;border:0;background:transparent;color:#fff;width:38px;height:38px}
+.container{max-width:1000px;margin:16px auto;padding:0 12px 50px}.page{display:none}.page.active{display:block}
+.card{background:#fff;border-radius:22px;padding:24px 20px;box-shadow:0 2px 15px rgba(0,0,0,.07);border:1px solid #e1e6e4}
+.intro-title,.page-title{text-align:center}.intro-title{font-size:30px;margin-bottom:22px}.intro-text{font-size:17px;line-height:1.75;margin-bottom:16px}
+.page-title{font-size:27px;margin-bottom:22px}
+.main-btn{width:100%;border:0;border-radius:14px;padding:15px;margin-top:12px;background:#18a957;color:#fff;font-size:18px;font-weight:bold}
+.main-btn:active,.small-btn:active{transform:scale(.985)}.back-btn{background:#eee;color:#222;margin-bottom:18px}
+.option-box{background:#f8faf9;border:1px solid #dfe6e3;border-radius:18px;padding:18px;margin-bottom:16px}.option-box h3{margin-bottom:7px;font-size:21px}.option-box p{color:#666;line-height:1.5}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.form-group{margin-bottom:12px}.form-group label{display:block;margin-bottom:6px;font-weight:bold}
+.form-group input,.form-group select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;background:#fff;color:#17201d;font-size:16px;min-height:46px}
+.settings-note{font-size:14px;color:#666;line-height:1.5;margin-top:3px}
+.section-title{margin:22px 0 11px;font-size:22px}
+.table-wrapper{width:100%;max-height:540px;overflow:auto;border:1px solid #d8dfdc;border-radius:14px;background:#fff;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.trade-table{border-collapse:collapse;min-width:1510px;width:max-content}.trade-table th,.trade-table td{border:1px solid #d9dfdd;padding:7px;text-align:center;white-space:nowrap;background:#fff}
+.trade-table th{background:#eef1f0;font-weight:bold;position:sticky;top:0;z-index:2}.trade-table .row-number{min-width:46px;width:46px;background:#f7f8f8;position:sticky;left:0;z-index:3}.trade-table th.row-number{z-index:5}
+.trade-table input,.trade-table select{width:128px;min-height:40px;border:1px solid #bfc8c4;border-radius:8px;padding:7px;font-size:15px;background:#fff}
+.trade-table input[type="datetime-local"]{width:185px}.trade-table select{width:120px}
+.add-row-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:11px}.small-btn{border:0;border-radius:11px;padding:12px 16px;font-weight:bold;background:#18a957;color:#fff}.small-btn.secondary{background:#e9eeee;color:#222}.small-btn.danger{background:#f6dddd;color:#9d3030}
+.row-count{margin-top:7px;font-size:13px;color:#666}.calculate-btn{margin-top:17px}
+.result-box{margin-top:20px;padding:18px;border-radius:18px;background:#eefaf3;border:1px solid #bce8cc}.result-box h3{margin-bottom:13px;font-size:23px}
+.result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.result-item{background:#fff;border:1px solid #e0e6e3;border-radius:13px;padding:13px}.result-item .label{color:#666;font-size:14px;margin-bottom:5px}.result-item .value{font-size:20px;font-weight:bold;word-break:break-word}
+.result-note{margin-top:12px;color:#555;line-height:1.5;font-size:14px}.error-box{display:none;margin-top:12px;padding:12px;border-radius:10px;background:#fff0f0;color:#a32626;border:1px solid #f0c1c1}.error-box.show{display:block}
+.chart-wrap{margin-top:20px;background:#fff;border:1px solid #dfe6e3;border-radius:18px;padding:12px}.chart-wrap h3{margin-bottom:8px}.chart-wrap canvas{display:block;width:100%;height:300px}
+.hidden{display:none!important}
+@media(max-width:600px){
+.topbar{height:64px;padding:0 9px}.appname{font-size:14px;padding:11px 14px}.logo{font-size:22px}.refresh{font-size:24px}
+.container{padding:0 9px 40px;margin-top:10px}.card{padding:20px 15px;border-radius:19px}.intro-title{font-size:27px}.intro-text{font-size:16px}.page-title{font-size:24px}
+.form-grid,.result-grid{grid-template-columns:1fr}.option-box{padding:16px}.main-btn{font-size:17px}.table-wrapper{max-height:500px}
+}
+
+.save-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}.save-toolbar .small-btn{margin:0}.saved-note{font-size:14px;color:#666;line-height:1.5;margin-top:10px}.saved-item{background:#f8faf9;border:1px solid #dfe6e3;border-radius:18px;padding:16px;margin-bottom:12px}.saved-item h3{margin-bottom:5px}.saved-meta{font-size:13px;color:#666;margin-bottom:8px}.saved-actions{display:flex;gap:8px;flex-wrap:wrap}.saved-actions button{margin:0}.save-status{margin-top:10px;font-size:14px;font-weight:bold;color:#18864b}
+@media(max-width:600px){.save-toolbar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="logo">&lt;/&gt;</div><div class="appname">Aditya Backtester Community</div>
+<button class="refresh" id="refreshBtn" aria-label="Refresh">⟳</button>
+</header>
+
+<main class="container">
+
+<section id="introduction" class="page active">
+<div class="card">
+<h1 class="intro-title">INTRODUCTION</h1>
+<div class="intro-text"><strong>प्रिय Traders and Investors,</strong></div>
+<div class="intro-text">आपकी उम्र चाहे जो भी हो, आप चाहे Pro हों या Beginner, हम सभी जानते हैं कि Trading and Investing में long term तक successful रहने के लिए आपको एक system की जरूरत होती है।</div>
+<div class="intro-text">लेकिन उसे backtest करना काफी कठिन और समय लेने वाला काम होता है। इसलिए हमने यह calculator आपके Backtesting में मदद करने के लिए बनाया है।</div>
+<div class="intro-text">यह tool <strong>Aditya Backtester Community</strong> के द्वारा बनाया गया है। हम आशा करते हैं कि यह tool आपकी इस field में मदद कर सकता है।</div>
+<div class="intro-text"><strong>Thank you!</strong></div>
+<button class="main-btn nav-btn" data-page="backtesting">Backtesting Calculator</button>
+</div>
+</section>
+
+<section id="backtesting" class="page">
+<div class="card">
+<button class="main-btn back-btn nav-btn" data-page="introduction">← Back</button>
+<h1 class="page-title">BACKTESTING CALCULATOR</h1>
+<div class="option-box">
+<h3>Normal Backtesting</h3>
+<p>हर trade को उसी Starting Capital पर analyse करें। Profit/Loss अगले trade की capital को नहीं बदलता।</p>
+<button class="main-btn nav-btn" data-page="normalBacktest">Normal Backtesting</button>
+</div>
+<div class="option-box">
+<h3>Saved Backtests</h3>
+<p>अपने backtest को नाम देकर save करें और बाद में वहीं से continue करें।</p>
+<div class="save-toolbar">
+<button class="small-btn" id="saveAsBtn">SAVE AS</button>
+<button class="small-btn" id="saveBtn">SAVE</button>
+<button class="small-btn secondary" id="openSavedBtn">OPEN SAVED</button>
+</div>
+<div class="saved-note">Save As से अलग-अलग नामों में कई backtests रख सकते हैं। Data इसी browser/device में रहेगा।</div>
+<div class="save-status" id="saveStatus"></div>
+</div>
+
+<div class="option-box">
+<h3>Compounding Backtesting</h3>
+<p>हर trade के बाद बची हुई capital automatically अगले trade की capital बनेगी।</p>
+<button class="main-btn nav-btn" data-page="compoundBacktest">Compounding Backtesting</button>
+</div>
+</div>
+</section>
+
+<section id="savedBacktests" class="page">
+<div class="card">
+<button class="main-btn back-btn nav-btn" data-page="backtesting">← Back</button>
+<h1 class="page-title">SAVED BACKTESTS</h1>
+<div class="option-box">
+<p>नीचे आपके saved backtests हैं। OPEN से पुराना काम वापस लाएँ और वहीं से continue करें।</p>
+<div class="save-toolbar">
+<button class="small-btn" id="savedSaveAsBtn">SAVE AS</button>
+<button class="small-btn secondary" id="exportBackupBtn">EXPORT BACKUP</button>
+<label class="small-btn secondary" style="text-align:center;display:block">OPEN SAVED FILE<input id="openSavedFileInput" type="file" accept="application/json,.json" style="display:none"></label>
+<label class="small-btn secondary" style="text-align:center;display:block">IMPORT BACKUP<input id="importBackupInput" type="file" accept="application/json" style="display:none"></label>
+</div>
+<div class="save-status" id="savedPageStatus"></div>
+</div>
+<div id="savedList"></div>
+</div>
+</section>
+
+<section id="normalBacktest" class="page">
+<div class="card">
+<button class="main-btn back-btn nav-btn" data-page="backtesting">← Back</button>
+<h1 class="page-title">NORMAL BACKTESTING</h1>
+<div class="save-toolbar calculation-save-toolbar">
+<button class="small-btn" id="normalSaveAsBtn">SAVE AS</button>
+<button class="small-btn" id="normalSaveBtn">SAVE</button>
+<button class="small-btn secondary" id="normalOpenBtn">OPEN SAVED</button>
+<span class="save-status" id="normalSaveStatus"></span>
+</div>
+<div class="option-box">
+<h3>Backtesting Settings</h3>
+<div class="form-grid">
+<div class="form-group"><label>Asset Name</label><input id="normalAsset" type="text" placeholder="Example: BTCUSDT"></div>
+<div class="form-group"><label>Time Frame</label><input id="normalTimeframe" type="text" placeholder="Example: 15m"></div>
+<div class="form-group"><label>Starting Capital (₹)</label><input id="normalCapital" type="number" min="0" step="any" placeholder="Example: 10000"></div>
+<div class="form-group"><label>Maker Fee (%)</label><input id="normalMaker" type="number" min="0" step="any" value="0.02"></div>
+<div class="form-group"><label>Taker Fee (%)</label><input id="normalTaker" type="number" min="0" step="any" value="0.05"></div>
+</div>
+<div class="settings-note">Lot handling: हर trade में उपलब्ध capital × leverage से maximum whole lots calculate होंगे। Fractional lot नहीं लिया जाएगा; बची हुई unused capital अगले calculation में capital का हिस्सा रहेगी। Fees पर 18% GST लगाया जाएगा।</div>
+</div>
+<h2 class="section-title">Trade Data</h2>
+<div class="table-wrapper"><table class="trade-table"><thead><tr>
+<th class="row-number">#</th><th>Position</th><th>Entry Price / Lot</th><th>Exit Price / Lot</th><th>Leverage</th><th>Entry Fee</th><th>Exit Fee</th><th>Entry Time</th><th>Exit Time</th>
+</tr></thead><tbody id="normalRows"></tbody></table></div>
+<div class="add-row-controls">
+<button class="small-btn" id="normalAdd10">+ Add 10 Trades</button><button class="small-btn secondary" id="normalAdd50">+ Add 50 Trades</button><button class="small-btn danger" id="normalClear">Clear Trades</button>
+</div>
+<div class="row-count" id="normalRowCount">0 trades</div>
+<button class="main-btn calculate-btn" id="normalCalculate">CALCULATE</button>
+<div class="error-box" id="normalError"></div>
+<div class="result-box">
+<h3>Normal Backtesting Result</h3>
+<div class="result-grid">
+<div class="result-item"><div class="label">Starting Capital</div><div class="value" id="nStarting">₹0</div></div>
+<div class="result-item"><div class="label">Present Capital</div><div class="value" id="nPresent">₹0</div></div>
+<div class="result-item"><div class="label">Win Rate</div><div class="value" id="nWinRate">0%</div></div>
+<div class="result-item"><div class="label">Max Drawdown</div><div class="value" id="nDrawdown">0%</div></div>
+<div class="result-item"><div class="label">Losing Streak</div><div class="value" id="nLosingStreak">0</div></div>
+<div class="result-item"><div class="label">Total Growth</div><div class="value" id="nGrowth">0%</div></div>
+<div class="result-item"><div class="label">Total Long Entries</div><div class="value" id="nLong">0</div></div>
+<div class="result-item"><div class="label">Total Short Entries</div><div class="value" id="nShort">0</div></div>
+<div class="result-item"><div class="label">Total P/L</div><div class="value" id="nPL">₹0</div></div>
+<div class="result-item"><div class="label">Total Fees + GST</div><div class="value" id="nFees">₹0</div></div>
+<div class="result-item"><div class="label">Whole Lots Used</div><div class="value" id="nLots">0</div></div>
+<div class="result-item"><div class="label">Unused Capital</div><div class="value" id="nUnused">₹0</div></div>
+</div>
+<div class="result-note">Normal backtesting में हर trade का capital base वही Starting Capital रहता है। Whole-lot rule के कारण पूरा capital deploy होना जरूरी नहीं है।</div>
+</div>
+</div>
+</section>
+
+<section id="compoundBacktest" class="page">
+<div class="card">
+<button class="main-btn back-btn nav-btn" data-page="backtesting">← Back</button>
+<h1 class="page-title">COMPOUNDING BACKTESTING</h1>
+<div class="save-toolbar calculation-save-toolbar">
+<button class="small-btn" id="compoundSaveAsBtn">SAVE AS</button>
+<button class="small-btn" id="compoundSaveBtn">SAVE</button>
+<button class="small-btn secondary" id="compoundOpenBtn">OPEN SAVED</button>
+<span class="save-status" id="compoundSaveStatus"></span>
+</div>
+<div class="option-box">
+<h3>Backtesting Settings</h3>
+<div class="form-grid">
+<div class="form-group"><label>Asset Name</label><input id="compoundAsset" type="text" placeholder="Example: BTCUSDT"></div>
+<div class="form-group"><label>Time Frame</label><input id="compoundTimeframe" type="text" placeholder="Example: 15m"></div>
+<div class="form-group"><label>Starting Capital (₹)</label><input id="compoundCapital" type="number" min="0" step="any" placeholder="Example: 10000"></div>
+<div class="form-group"><label>Maker Fee (%)</label><input id="compoundMaker" type="number" min="0" step="any" value="0.02"></div>
+<div class="form-group"><label>Taker Fee (%)</label><input id="compoundTaker" type="number" min="0" step="any" value="0.05"></div>
+</div>
+<div class="settings-note">Compounding rule: trade 1 के बाद बची capital trade 2 की available capital बनेगी। हर trade में available capital × leverage से maximum whole lots लिए जाएंगे। Fractional lot नहीं लिया जाएगा और unused capital बची रहेगी।</div>
+</div>
+<h2 class="section-title">Trade Data</h2>
+<div class="table-wrapper"><table class="trade-table"><thead><tr>
+<th class="row-number">#</th><th>Position</th><th>Entry Price / Lot</th><th>Exit Price / Lot</th><th>Leverage</th><th>Entry Fee</th><th>Exit Fee</th><th>Entry Time</th><th>Exit Time</th>
+</tr></thead><tbody id="compoundRows"></tbody></table></div>
+<div class="add-row-controls">
+<button class="small-btn" id="compoundAdd10">+ Add 10 Trades</button><button class="small-btn secondary" id="compoundAdd50">+ Add 50 Trades</button><button class="small-btn danger" id="compoundClear">Clear Trades</button>
+</div>
+<div class="row-count" id="compoundRowCount">0 trades</div>
+<button class="main-btn calculate-btn" id="compoundCalculate">CALCULATE</button>
+<div class="error-box" id="compoundError"></div>
+<div class="result-box">
+<h3>Compounding Backtesting Result</h3>
+<div class="result-grid">
+<div class="result-item"><div class="label">Starting Capital</div><div class="value" id="cStarting">₹0</div></div>
+<div class="result-item"><div class="label">Present Capital</div><div class="value" id="cPresent">₹0</div></div>
+<div class="result-item"><div class="label">Win Rate</div><div class="value" id="cWinRate">0%</div></div>
+<div class="result-item"><div class="label">Max Drawdown</div><div class="value" id="cDrawdown">0%</div></div>
+<div class="result-item"><div class="label">Losing Streak</div><div class="value" id="cLosingStreak">0</div></div>
+<div class="result-item"><div class="label">Total Growth</div><div class="value" id="cGrowth">0%</div></div>
+<div class="result-item"><div class="label">Total Long Entries</div><div class="value" id="cLong">0</div></div>
+<div class="result-item"><div class="label">Total Short Entries</div><div class="value" id="cShort">0</div></div>
+<div class="result-item"><div class="label">Average Hold Time</div><div class="value" id="cHold">0 min</div></div>
+<div class="result-item"><div class="label">Total P/L</div><div class="value" id="cPL">₹0</div></div>
+<div class="result-item"><div class="label">Total Fees + GST</div><div class="value" id="cFees">₹0</div></div>
+<div class="result-item"><div class="label">Whole Lots Used</div><div class="value" id="cLots">0</div></div>
+<div class="result-item"><div class="label">Unused Capital (last trade)</div><div class="value" id="cUnused">₹0</div></div>
+</div>
+<div class="result-note">Example: ₹10,000 capital, 1× leverage और ₹180 entry price/lot पर maximum whole lots = floor(10000 ÷ 180) = 55. इसलिए ₹9,900 deploy होंगे और ₹100 unused रहेंगे। Exit के बाद P/L और charges के अनुसार बची capital अगली trade में compound होगी।</div>
+</div>
+<div class="chart-wrap"><h3>Capital Growth</h3><canvas id="compoundChart" width="900" height="300"></canvas></div>
+</div>
+</section>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+
+var pages = ["introduction","backtesting","savedBacktests","normalBacktest","compoundBacktest"];
+
+function showPage(id){
+  pages.forEach(function(pageId){
+    var el = document.getElementById(pageId);
+    if(el) el.classList.toggle("active", pageId === id);
+  });
+  window.scrollTo(0,0);
+}
+
+document.addEventListener("click", function(event){
+  var btn = event.target.closest(".nav-btn");
+  if(!btn) return;
+  var target = btn.getAttribute("data-page");
+  if(target && document.getElementById(target)){
+    showPage(target);
+  }
+});
+
+document.getElementById("refreshBtn").addEventListener("click", function(){
+  window.location.reload();
+});
+
+function num(value){
+  var n = Number(value);
+  return Number.isFinite(n) ? n : NaN;
+}
+function money(value){
+  var n = Number(value);
+  if(!Number.isFinite(n)) n = 0;
+  return "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function pct(value){
+  var n = Number(value);
+  if(!Number.isFinite(n)) n = 0;
+  return n.toFixed(2) + "%";
+}
+function feeRate(selectValue, maker, taker){
+  return selectValue === "maker" ? maker : taker;
+}
+function escapeAttr(value){
+  return String(value).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function addRows(tbodyId, count, counterId){
+  var tbody = document.getElementById(tbodyId);
+  var current = tbody.children.length;
+  var fragment = document.createDocumentFragment();
+  for(var i=1;i<=count;i++){
+    var rowNumber = current + i;
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="row-number">'+rowNumber+'</td>'+
+      '<td><select data-field="position"><option value="long">Long</option><option value="short">Short</option></select></td>'+
+      '<td><input data-field="entry" type="number" min="0" step="any" placeholder="Entry"></td>'+
+      '<td><input data-field="exit" type="number" min="0" step="any" placeholder="Exit"></td>'+
+      '<td><input data-field="leverage" type="number" min="0.01" step="any" value="1"></td>'+
+      '<td><select data-field="entryFee"><option value="maker">Maker</option><option value="taker">Taker</option></select></td>'+
+      '<td><select data-field="exitFee"><option value="maker">Maker</option><option value="taker">Taker</option></select></td>'+
+      '<td><input data-field="entryTime" type="datetime-local"></td>'+
+      '<td><input data-field="exitTime" type="datetime-local"></td>';
+    fragment.appendChild(tr);
+  }
+  tbody.appendChild(fragment);
+  updateRowCount(tbodyId,counterId);
+  }
+function clearRows(tbodyId,counterId){
+  document.getElementById(tbodyId).innerHTML="";
+  updateRowCount(tbodyId,counterId);
+}
+function getRows(tbodyId){
+  return Array.from(document.getElementById(tbodyId).querySelectorAll("tr"));
+}
+function readTrade(row){
+  return {
+    position: row.querySelector('[data-field="position"]').value,
+    entry: num(row.querySelector('[data-field="entry"]').value),
+    exit: num(row.querySelector('[data-field="exit"]').value),
+    leverage: num(row.querySelector('[data-field="leverage"]').value),
+    entryFee: row.querySelector('[data-field="entryFee"]').value,
+    exitFee: row.querySelector('[data-field="exitFee"]').value,
+    entryTime: row.querySelector('[data-field="entryTime"]').value,
+    exitTime: row.querySelector('[data-field="exitTime"]').value
+  };
+}
+function validTrade(t){
+  return Number.isFinite(t.entry) && t.entry>0 &&
+         Number.isFinite(t.exit) && t.exit>0 &&
+         Number.isFinite(t.leverage) && t.leverage>0;
+}
+function getSettings(prefix){
+  var capital=num(document.getElementById(prefix+"Capital").value);
+  var maker=num(document.getElementById(prefix+"Maker").value);
+  var taker=num(document.getElementById(prefix+"Taker").value);
+  return {capital:capital,maker:maker,taker:taker};
+}
+function setError(id,message){
+  var el=document.getElementById(id);
+  el.textContent=message;
+  el.classList.add("show");
+}
+function clearError(id){
+  var el=document.getElementById(id);
+  el.textContent="";
+  el.classList.remove("show");
+}
+function calculateTrade(t, availableCapital, maker, taker){
+  /*
+    Whole-lot rule:
+    buyingPower = availableCapital * leverage
+    lots = floor(buyingPower / entryPrice)
+    deployedNotional = lots * entryPrice
+    marginUsed = deployedNotional / leverage
+    unusedCapital = availableCapital - marginUsed
+
+    P/L is based on whole lots. Fees are charged on entry and exit notional.
+    GST = 18% of total trading fees.
+  */
+  var buyingPower=availableCapital*t.leverage;
+  var lots=Math.floor(buyingPower/t.entry);
+  if(lots<0) lots=0;
+  var entryNotional=lots*t.entry;
+  var exitNotional=lots*t.exit;
+  var marginUsed=t.leverage>0 ? entryNotional/t.leverage : 0;
+  var unused=Math.max(0,availableCapital-marginUsed);
+  var gross=t.position==="long" ? (t.exit-t.entry)*lots : (t.entry-t.exit)*lots;
+  var entryFee=entryNotional*feeRate(t.entryFee,maker,taker)/100;
+  var exitFee=exitNotional*feeRate(t.exitFee,maker,taker)/100;
+  var fees=entryFee+exitFee;
+  var gst=fees*0.18;
+  var totalCharges=fees+gst;
+  var net=gross-totalCharges;
+  var ending=availableCapital+net;
+  var duration=0;
+  if(t.entryTime && t.exitTime){
+    var a=new Date(t.entryTime).getTime(), b=new Date(t.exitTime).getTime();
+    if(Number.isFinite(a)&&Number.isFinite(b)&&b>=a) duration=b-a;
+  }
+  return {lots:lots,entryNotional:entryNotional,exitNotional:exitNotional,marginUsed:marginUsed,unused:unused,gross:gross,entryFee:entryFee,exitFee:exitFee,fees:fees,gst:gst,totalCharges:totalCharges,net:net,ending:ending,duration:duration};
+}
+function maxDrawdown(values){
+  if(!values.length) return 0;
+  var peak=values[0], maxDD=0;
+  values.forEach(function(v){
+    if(v>peak) peak=v;
+    if(peak>0){
+      var dd=(peak-v)/peak*100;
+      if(dd>maxDD) maxDD=dd;
+    }
+  });
+  return maxDD;
+}
+function losingStreak(results){
+  var current=0,max=0;
+  results.forEach(function(r){
+    if(r.net<0){current++;if(current>max)max=current;}else if(r.net>0){current=0;}
+  });
+  return max;
+}
+function avgHold(results){
+  var arr=results.filter(function(r){return r.duration>0;});
+  if(!arr.length) return 0;
+  return arr.reduce(function(s,r){return s+r.duration;},0)/arr.length;
+}
+function formatDuration(ms){
+  var minutes=Math.round(ms/60000);
+  if(minutes<60) return minutes+" min";
+  var h=Math.floor(minutes/60), m=minutes%60;
+  if(h<24) return h+"h "+m+"m";
+  var d=Math.floor(h/24), hh=h%24;
+  return d+"d "+hh+"h";
+}
+
+function calculateNormal(){
+  clearError("normalError");
+  var s=getSettings("normal");
+  if(!Number.isFinite(s.capital)||s.capital<=0){setError("normalError","Starting Capital 0 से बड़ा डालें।");return;}
+  if(!Number.isFinite(s.maker)||s.maker<0||!Number.isFinite(s.taker)||s.taker<0){setError("normalError","Maker/Taker fee सही डालें।");return;}
+  var trades=getRows("normalRows").map(readTrade).filter(validTrade);
+  if(!trades.length){setError("normalError","कम से कम 1 valid trade भरें।");return;}
+  var results=trades.map(function(t){return calculateTrade(t,s.capital,s.maker,s.taker);});
+  var totalNet=results.reduce(function(a,r){return a+r.net;},0);
+  var totalFees=results.reduce(function(a,r){return a+r.totalCharges;},0);
+  var wins=results.filter(function(r){return r.net>0;}).length;
+  var longCount=trades.filter(function(t){return t.position==="long";}).length;
+  var shortCount=trades.length-longCount;
+  var lots=results.reduce(function(a,r){return a+r.lots;},0);
+  var unused=results.length ? results[results.length-1].unused : s.capital;
+  var present=Math.max(0,s.capital+totalNet);
+  var growth=(totalNet/s.capital)*100;
+  var equity=[s.capital];
+  results.forEach(function(r){equity.push(Math.max(0,equity[equity.length-1]+r.net));});
+  document.getElementById("nStarting").textContent=money(s.capital);
+  document.getElementById("nPresent").textContent=money(present);
+  document.getElementById("nWinRate").textContent=pct(wins/trades.length*100);
+  document.getElementById("nDrawdown").textContent=pct(maxDrawdown(equity));
+  document.getElementById("nLosingStreak").textContent=losingStreak(results);
+  document.getElementById("nGrowth").textContent=pct(growth);
+  document.getElementById("nLong").textContent=longCount;
+  document.getElementById("nShort").textContent=shortCount;
+  document.getElementById("nPL").textContent=money(totalNet);
+  document.getElementById("nFees").textContent=money(totalFees);
+  document.getElementById("nLots").textContent=lots.toLocaleString("en-IN");
+  document.getElementById("nUnused").textContent=money(unused);
+}
+
+function calculateCompound(){
+  clearError("compoundError");
+  var s=getSettings("compound");
+  if(!Number.isFinite(s.capital)||s.capital<=0){setError("compoundError","Starting Capital 0 से बड़ा डालें।");return;}
+  if(!Number.isFinite(s.maker)||s.maker<0||!Number.isFinite(s.taker)||s.taker<0){setError("compoundError","Maker/Taker fee सही डालें।");return;}
+  var trades=getRows("compoundRows").map(readTrade).filter(validTrade);
+  if(!trades.length){setError("compoundError","कम से कम 1 valid trade भरें।");return;}
+  var capital=s.capital, results=[], equity=[capital];
+  var totalLots=0,totalNet=0,totalFees=0;
+  for(var i=0;i<trades.length;i++){
+    var r=calculateTrade(trades[i],capital,s.maker,s.taker);
+    results.push(r);
+    totalLots+=r.lots;totalNet+=r.net;totalFees+=r.totalCharges;
+    capital=Math.max(0,capital+r.net);
+    equity.push(capital);
+  }
+  var wins=results.filter(function(r){return r.net>0;}).length;
+  var longCount=trades.filter(function(t){return t.position==="long";}).length;
+  var shortCount=trades.length-longCount;
+  var growth=(capital-s.capital)/s.capital*100;
+  var lastUnused=results.length ? results[results.length-1].unused : s.capital;
+  document.getElementById("cStarting").textContent=money(s.capital);
+  document.getElementById("cPresent").textContent=money(capital);
+  document.getElementById("cWinRate").textContent=pct(wins/trades.length*100);
+  document.getElementById("cDrawdown").textContent=pct(maxDrawdown(equity));
+  document.getElementById("cLosingStreak").textContent=losingStreak(results);
+  document.getElementById("cGrowth").textContent=pct(growth);
+  document.getElementById("cLong").textContent=longCount;
+  document.getElementById("cShort").textContent=shortCount;
+  document.getElementById("cHold").textContent=formatDuration(avgHold(results));
+  document.getElementById("cPL").textContent=money(totalNet);
+  document.getElementById("cFees").textContent=money(totalFees);
+  document.getElementById("cLots").textContent=totalLots.toLocaleString("en-IN");
+  document.getElementById("cUnused").textContent=money(lastUnused);
+  drawChart(equity);
+}
+
+function drawChart(values){
+  var canvas=document.getElementById("compoundChart");
+  var ctx=canvas.getContext("2d");
+  var rect=canvas.getBoundingClientRect();
+  var dpr=window.devicePixelRatio||1;
+  var w=Math.max(300,Math.floor(rect.width)), h=300;
+  canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  if(!values.length) return;
+  var pad={l:48,r:12,t:16,b:32};
+  var min=Math.min.apply(null,values),max=Math.max.apply(null,values);
+  if(min===max){min-=1;max+=1;}
+  var plotW=w-pad.l-pad.r,plotH=h-pad.t-pad.b;
+  ctx.strokeStyle="#d8dfdc";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,h-pad.b);ctx.lineTo(w-pad.r,h-pad.b);ctx.stroke();
+  ctx.fillStyle="#666";ctx.font="12px Arial";
+  ctx.fillText(money(max),4,pad.t+4);ctx.fillText(money(min),4,h-pad.b);
+  ctx.strokeStyle="#18a957";ctx.lineWidth=2;ctx.beginPath();
+  values.forEach(function(v,i){
+    var x=pad.l+(values.length===1?0:i/(values.length-1))*plotW;
+    var y=pad.t+(max-v)/(max-min)*plotH;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+}
+
+document.getElementById("normalAdd10").addEventListener("click",function(){addRows("normalRows",10,"normalRowCount");});
+document.getElementById("normalAdd50").addEventListener("click",function(){addRows("normalRows",50,"normalRowCount");});
+document.getElementById("normalClear").addEventListener("click",function(){clearRows("normalRows","normalRowCount");clearError("normalError");});
+document.getElementById("normalCalculate").addEventListener("click",calculateNormal);
+
+document.getElementById("compoundAdd10").addEventListener("click",function(){addRows("compoundRows",10,"compoundRowCount");});
+document.getElementById("compoundAdd50").addEventListener("click",function(){addRows("compoundRows",50,"compoundRowCount");});
+document.getElementById("compoundClear").addEventListener("click",function(){clearRows("compoundRows","compoundRowCount");clearError("compoundError");});
+document.getElementById("compoundCalculate").addEventListener("click",calculateCompound);
+
+addRows("normalRows",2,"normalRowCount");
+addRows("compoundRows",2,"compoundRowCount");
+
+
+
+// ===== SAVED BACKTESTS / EXCEL-LIKE CONTINUATION =====
+var SAVE_KEY = "aditya_backtester_saved_v3";
+var CURRENT_SAVE_KEY = "aditya_backtester_current_v3";
+var MEMORY_SAVES = {};
+function storageRead(){
+  try { var x=localStorage.getItem(SAVE_KEY); return x ? JSON.parse(x) : {}; } catch(e){ return {}; }
+}
+function savedAll(){
+  var disk=storageRead();
+  Object.keys(MEMORY_SAVES).forEach(function(k){disk[k]=MEMORY_SAVES[k];});
+  return disk;
+}
+function setSavedAll(x){
+  MEMORY_SAVES = x || {};
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(MEMORY_SAVES)); } catch(e) { /* file:// or WebView storage may be unavailable */ }
+}
+function field(id){var e=document.getElementById(id);return e?e.value:"";}
+function collectTrades(tbodyId){
+  var body=document.getElementById(tbodyId),out=[];
+  if(!body)return out;
+  Array.from(body.querySelectorAll("tr")).forEach(function(tr){
+    var o={};
+    tr.querySelectorAll("[data-field]").forEach(function(el){o[el.getAttribute("data-field")]=el.value;});
+    out.push(o);
+  });
+  return out;
+}
+function collectSide(kind){var p=kind==="normal"?"normal":"compound";return {asset:field(p+"Asset"),timeframe:field(p+"Timeframe"),capital:field(p+"Capital"),maker:field(p+"Maker"),taker:field(p+"Taker"),trades:collectTrades(p+"Rows")};}
+function snapshot(){return {normal:collectSide("normal"),compound:collectSide("compound"),active:(document.getElementById("compoundBacktest").classList.contains("active")?"compound":"normal"),savedAt:new Date().toISOString()};}
+function restoreSide(kind,data){
+  if(!data)return;
+  var p=kind==="normal"?"normal":"compound",bodyId=p+"Rows",counter=p+"RowCount",body=document.getElementById(bodyId);if(!body)return;
+  body.innerHTML="";if(data.trades&&data.trades.length)addRows(bodyId,data.trades.length,counter);
+  ["Asset","Timeframe","Capital","Maker","Taker"].forEach(function(s){var e=document.getElementById(p+s);if(e&&data[s.toLowerCase()]!==undefined)e.value=data[s.toLowerCase()];});
+  var rows=body.querySelectorAll("tr");(data.trades||[]).forEach(function(t,i){var tr=rows[i];if(!tr)return;Object.keys(t).forEach(function(k){var e=tr.querySelector('[data-field="'+k+'"]');if(e)e.value=t[k];});});updateRowCount(bodyId,counter);
+}
+function currentName(){try{return localStorage.getItem(CURRENT_SAVE_KEY)||"";}catch(e){return window.__currentSaveName||"";}}
+function setCurrentName(n){window.__currentSaveName=n;try{localStorage.setItem(CURRENT_SAVE_KEY,n);}catch(e){}}
+function status(msg){var a=document.getElementById("saveStatus"),b=document.getElementById("savedPageStatus");if(a)a.textContent=msg;if(b)b.textContent=msg;}
+function downloadSnapshot(name,data){
+  var blob=new Blob([JSON.stringify({format:"AdityaBacktester",version:2,name:name,data:data},null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name.replace(/[\\/:*?"<>|]/g,"_")+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+}
+function saveAsNow(){
+  var name=prompt("Backtest file का नाम लिखें:",currentName());if(!name)return;name=name.trim();if(!name)return;
+  var all=savedAll();if(all[name]&&!confirm("यह नाम पहले से मौजूद है। क्या इसे overwrite करना है?"))return;
+  var data=snapshot();all[name]=data;setSavedAll(all);setCurrentName(name);downloadSnapshot(name,data);status("Saved: "+name);renderSaved();alert("Saved successfully: "+name+"\nइसकी backup JSON file भी आपके device में download हुई है।");
+}
+function saveNow(){var name=currentName();if(!name){saveAsNow();return;}var data=snapshot(),all=savedAll();all[name]=data;setSavedAll(all);downloadSnapshot(name,data);status("Saved: "+name);renderSaved();alert("Updated and saved: "+name);}
+function openNow(name){var d=savedAll()[name];if(!d)return;restoreSide("normal",d.normal);restoreSide("compound",d.compound);setCurrentName(name);showPage(d.active==="compound"?"compoundBacktest":"normalBacktest");status("Opened: "+name);window.scrollTo(0,0);}
+function renameNow(name){var nn=prompt("New name:",name);if(!nn)return;nn=nn.trim();if(!nn||nn===name)return;var all=savedAll();if(all[nn]){alert("यह नाम पहले से मौजूद है।");return;}all[nn]=all[name];delete all[name];setSavedAll(all);if(currentName()===name)setCurrentName(nn);renderSaved();}
+function deleteNow(name){if(!confirm('Delete "'+name+'"?'))return;var all=savedAll();delete all[name];setSavedAll(all);if(currentName()===name)setCurrentName("");renderSaved();}
+function renderSaved(){
+  var box=document.getElementById("savedList");if(!box)return;var all=savedAll(),names=Object.keys(all);
+  if(!names.length){box.innerHTML='<div class="option-box"><p>अभी कोई saved backtest नहीं है।</p><p style="margin-top:8px">SAVE AS दबाकर नाम दें। अगर आप file दोबारा खोलते हैं तो OPEN SAVED FILE से उसकी .json file import करें।</p></div>';return;}
+  box.innerHTML="";names.sort().forEach(function(name){var d=all[name],n=(d.normal&&d.normal.trades?d.normal.trades.length:0)+(d.compound&&d.compound.trades?d.compound.trades.length:0),div=document.createElement("div");div.className="saved-item";div.innerHTML='<h3></h3><div class="saved-meta">'+n+' saved trade rows</div>';div.querySelector("h3").textContent=name;var act=document.createElement("div");act.className="saved-actions";[["OPEN","",function(){openNow(name)}],["RENAME","secondary",function(){renameNow(name)}],["DELETE","danger",function(){deleteNow(name)}]].forEach(function(x){var b=document.createElement("button");b.className="small-btn "+x[1];b.textContent=x[0];b.onclick=x[2];act.appendChild(b);});div.appendChild(act);box.appendChild(div);});
+}
+function exportBackupNow(){var blob=new Blob([JSON.stringify(savedAll(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backtester_backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);}
+function openSavedFile(file){
+  if(!file)return;var r=new FileReader();r.onload=function(){try{var x=JSON.parse(r.result),data=x&&x.data?x.data:x;if(!data||!data.normal||!data.compound)throw 1;var suggested=(x&&x.name)?x.name:file.name.replace(/\.json$/i,"");var name=prompt("इस saved backtest का नाम:",suggested);if(!name)return;name=name.trim();if(!name)return;var all=savedAll();if(all[name]&&!confirm("यह नाम पहले से मौजूद है। क्या इसे overwrite करना है?"))return;all[name]=data;setSavedAll(all);setCurrentName(name);renderSaved();openNow(name);}catch(e){alert("यह valid Backtester save file नहीं है।")}};r.readAsText(file);
+}
+function importBackupNow(file){if(!file)return;var r=new FileReader();r.onload=function(){try{var x=JSON.parse(r.result);if(!x||typeof x!=="object")throw 1;var all=savedAll();Object.keys(x).forEach(function(k){all[k]=x[k]});setSavedAll(all);renderSaved();alert("Backup imported.");}catch(e){alert("Backup file valid नहीं है।")}};r.readAsText(file);}
+
+document.addEventListener("DOMContentLoaded",function(){
+  var s=document.getElementById("saveAsBtn"),b=document.getElementById("saveBtn"),o=document.getElementById("openSavedBtn"),sa=document.getElementById("savedSaveAsBtn");
+  if(s)s.onclick=saveAsNow;if(b)b.onclick=saveNow;if(o)o.onclick=function(){renderSaved();showPage("savedBacktests")};if(sa)sa.onclick=saveAsNow;
+  ["normalSaveAsBtn","compoundSaveAsBtn"].forEach(function(id){var e=document.getElementById(id);if(e)e.onclick=saveAsNow});
+  ["normalSaveBtn","compoundSaveBtn"].forEach(function(id){var e=document.getElementById(id);if(e)e.onclick=saveNow});
+  ["normalOpenBtn","compoundOpenBtn"].forEach(function(id){var e=document.getElementById(id);if(e)e.onclick=function(){renderSaved();showPage("savedBacktests")}});
+  var ex=document.getElementById("exportBackupBtn");if(ex)ex.onclick=exportBackupNow;
+  var im=document.getElementById("importBackupInput");if(im)im.onchange=function(){importBackupNow(this.files[0]);this.value=""};
+  var of=document.getElementById("openSavedFileInput");if(of)of.onchange=function(){openSavedFile(this.files[0]);this.value=""};
+  renderSaved();
+});
+})();
+</script>
+</body>
+</html>
